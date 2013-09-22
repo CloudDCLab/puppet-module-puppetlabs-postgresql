@@ -1,0 +1,5 @@
+puppet-module-puppetlabs-postgresql (2.5.0-1) UNRELEASED; urgency=low
+
+  * Initial release (Closes: #724011)
+
+ -- Thomas Bechtold <thomasbechtold@jpberlin.de>  Sun, 22 Sep 2013 05:41:30 -0000

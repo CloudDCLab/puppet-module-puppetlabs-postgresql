@@ -1,0 +1,6 @@
+Modulefile usr/share/puppet/modules.available/puppetlabs-postgresql
+metadata.json usr/share/puppet/modules.available/puppetlabs-postgresql
+files usr/share/puppet/modules.available/puppetlabs-postgresql
+templates usr/share/puppet/modules.available/puppetlabs-postgresql
+manifests usr/share/puppet/modules.available/puppetlabs-postgresql
+lib usr/share/puppet/modules.available/puppetlabs-postgresql
