@@ -20,7 +20,7 @@ Depends: ${misc:Depends},
          puppet-module-puppetlabs-firewall,
          puppet-module-puppetlabs-apt,
          puppet-module-puppetlabs-concat,
-         postgresql-client-common,
+Suggests: postgresql-client-common,
 Description: Puppet module for PostgreSQL database
  Puppet lets you centrally manage every important aspect of your system
  using a cross-platform specification language that manages all the
