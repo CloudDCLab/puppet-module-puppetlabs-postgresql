@@ -12,7 +12,6 @@ Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-puppet/puppet-module-puppet
 Homepage: https://forge.puppetlabs.com/puppetlabs/postgresql
 
 Package: puppet-module-puppetlabs-postgresql
-Section: admin
 Architecture: all
 Depends: ${misc:Depends},
          puppet-common,
