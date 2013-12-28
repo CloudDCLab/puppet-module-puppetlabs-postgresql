@@ -1,3 +1,13 @@
+puppet-module-puppetlabs-postgresql (3.2.0-1) UNRELEASED; urgency=medium
+
+  * New upstream release.
+  * debian/control:
+    - Use Debian address in Uploaders field.
+    - Bump Standards-Version to 3.9.5. No further changes.
+  * debian/copyright: Update copyright holders according to NOTICE file.
+
+ -- Thomas Bechtold <toabctl@debian.org>  Sat, 28 Dec 2013 08:36:35 +0100
+
 puppet-module-puppetlabs-postgresql (2.5.0-1) unstable; urgency=low
 
   [ Thomas Bechtold ]
