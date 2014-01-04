@@ -1,4 +1,4 @@
-puppet-module-puppetlabs-postgresql (3.2.0-1) UNRELEASED; urgency=medium
+puppet-module-puppetlabs-postgresql (3.2.0-1) unstable; urgency=medium
 
   * New upstream release.
   * debian/control:
@@ -6,7 +6,7 @@ puppet-module-puppetlabs-postgresql (3.2.0-1) UNRELEASED; urgency=medium
     - Bump Standards-Version to 3.9.5. No further changes.
   * debian/copyright: Update copyright holders according to NOTICE file.
 
- -- Thomas Bechtold <toabctl@debian.org>  Sat, 28 Dec 2013 08:36:35 +0100
+ -- Thomas Bechtold <toabctl@debian.org>  Sat, 04 Jan 2014 18:07:01 +0100
 
 puppet-module-puppetlabs-postgresql (2.5.0-1) unstable; urgency=low
 
