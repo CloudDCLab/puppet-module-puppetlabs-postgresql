@@ -7,6 +7,8 @@ Table of Contents
 1. [Overview - What is the PostgreSQL module?](#overview)
 2. [Module Description - What does the module do?](#module-description)
 3. [Setup - The basics of getting started with PostgreSQL module](#setup)
+    * [PE 3.2 supported module](#pe-3.2-supported-module)
+    * [Configuring the server](#configuring-the-server) 
 4. [Usage - How to use the module for various tasks](#usage)
 5. [Upgrading - Guide for upgrading from older revisions of this module](#upgrading)
 6. [Reference - The classes, defines,functions and facts available in this module](#reference)
@@ -46,6 +48,15 @@ The postgresql module offers many security configuration settings. Before gettin
 * How restrictive do you want the database superuser's permissions to be?
 
 Your answers to these questions will determine which of the module's parameters you'll want to specify values for.
+
+###PE 3.2 supported module
+
+PE 3.2 introduces Puppet Labs supported modules. The version of the postgresql module that ships within PE 3.2 is supported via normal [Puppet Enterprise support](http://puppetlabs.com/services/customer-support) channels. If you would like to access the [supported module](http://forge.puppetlabs.com/supported) version, you will need to uninstall the shipped module and install the supported version from the Puppet Forge. You can do this by first running
+
+    # puppet module uninstall puppetlabs-postgresql
+and then running
+
+    # puppet module install puppetlabs/postgresql
 
 ###Configuring the server
 
@@ -284,10 +295,13 @@ This setting can be used to override the default postgresql PL/perl package name
 This setting can be used to override the default postgresql Python package name. If not specified, the module will use whatever package name is the default for your OS distro.
 
 ####`service_name`
-This setting can be used to override the default postgresql service provider. If not specified, the module will use whatever service name is the default for your OS distro.
+This setting can be used to override the default postgresql service name. If not specified, the module will use whatever service name is the default for your OS distro.
+
+####`service_provider`
+This setting can be used to override the default postgresql service provider. If not specified, the module will use whatever service provider is the default for your OS distro.
 
 ####`service_status`
-This setting can be used to override the default status check command for your PostgreSQL service. If not specified, the module will use whatever service name is the default for your OS distro.
+This setting can be used to override the default status check command for your PostgreSQL service. If not specified, the module will use whatever service status is the default for your OS distro.
 
 ####`default_database`
 This setting is used to specify the name of the default database to connect with. On most systems this will be "postgres".
@@ -319,6 +333,9 @@ This setting can be used to override the default postgresql configuration direct
 ####`bindir`
 This setting can be used to override the default postgresql binaries directory for the target platform. If not specified, the module will use whatever directory is the default for your OS distro.
 
+####`xlogdir`
+This setting can be used to override the default postgresql xlog directory. If not specified the module will use initdb's default path.
+
 ####`user`
 This setting can be used to override the default postgresql super user and owner of postgresql related files in the file system. If not specified, the module will use the user name 'postgres'.
 
@@ -338,6 +355,10 @@ This will set the default encoding encoding for all databases created with this 
 
 ####`locale`
 This will set the default database locale for all databases created with this module. On certain operating systems this will be used during the `template1` initialization as well so it becomes a default outside of the module as well. Defaults to `undef` which is effectively `C`.
+
+#####Debian
+
+On Debian you'll need to ensure that the 'locales-all' package is installed for full functionality of Postgres.
 
 ####`firewall_supported`
 This allows you to override the automated detection to see if your OS supports the `firewall` module.
@@ -393,7 +414,7 @@ List of strings for access control for connection method, users, databases, IPv4
 ####`ipv6acls`
 List of strings for access control for connection method, users, databases, IPv6 addresses; see [postgresql documentation](http://www.postgresql.org/docs/9.2/static/auth-pg-hba-conf.html) about `pg_hba.conf` for information (please note that the link will take you to documentation for the most recent version of Postgres, however links for earlier versions can be found on that page).
 
-####`inidb_path`
+####`initdb_path`
 Path to the `initdb` command.
 
 ####`createdb_path`
@@ -429,6 +450,10 @@ This will set the default encoding encoding for all databases created with this 
 ####`locale`
 This will set the default database locale for all databases created with this module. On certain operating systems this will be used during the `template1` initialization as well so it becomes a default outside of the module as well. Defaults to `undef` which is effectively `C`.
 
+#####Debian
+
+On Debian you'll need to ensure that the 'locales-all' package is installed for full functionality of Postgres.
+
 ####`manage_firewall`
 This value defaults to `false`. Many distros ship with a fairly restrictive firewall configuration which will block the port that postgres tries to listen on. If you'd like for the puppet module to open this port for you (using the [puppetlabs-firewall](http://forge.puppetlabs.com/puppetlabs/firewall) module), change this value to true. Check the documentation for `puppetlabs/firewall` to ensure the rest of the global setup is applied, to ensure things like persistence and global rules are set correctly.
 
@@ -451,7 +476,7 @@ The ensure parameter passed on to postgresql client package resource.
 Installs the postgresql contrib package.
 
 ####`package_name`
-The name of the postgresql client package.
+The name of the postgresql contrib package.
 
 ####`package_ensure`
 The ensure parameter passed on to postgresql contrib package resource.
