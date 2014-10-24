@@ -12,11 +12,10 @@ Homepage: https://forge.puppetlabs.com/puppetlabs/postgresql
 Package: puppet-module-puppetlabs-postgresql
 Architecture: all
 Depends: ${misc:Depends},
-         puppet-common,
+         puppet-common (>= 3),
          puppet-module-puppetlabs-stdlib,
-         puppet-module-puppetlabs-firewall,
          puppet-module-puppetlabs-apt,
-         puppet-module-puppetlabs-concat
+         puppet-module-puppetlabs-concat (>= 1.1.0)
 Suggests: postgresql-client-common
 Description: Puppet module for PostgreSQL database
  Puppet lets you centrally manage every important aspect of your system
