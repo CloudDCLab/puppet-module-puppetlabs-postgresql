@@ -1,3 +1,9 @@
+puppet-module-puppetlabs-postgresql (4.0.0-1) UNRELEASED; urgency=medium
+
+  * Imported upstream relase 4.0.0
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 24 Oct 2014 21:17:44 +0200
+
 puppet-module-puppetlabs-postgresql (3.3.3-1) unstable; urgency=medium
 
   * New upstream release.
