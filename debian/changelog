@@ -1,3 +1,10 @@
+puppet-module-puppetlabs-postgresql (4.0.0-2) unstable; urgency=medium
+
+  * [221918d] Import upstream commit 9bb1c5e to select correct postgresql
+    version on jessie. Thanks to Andrew Starr-Bochicchio (Closes: #777607)
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 21 Feb 2015 21:47:40 +0100
+
 puppet-module-puppetlabs-postgresql (4.0.0-1) unstable; urgency=medium
 
   * Imported upstream relase 4.0.0
