@@ -1,0 +1,431 @@
+commit 81b4778b9376fa0c7a1337e7eaed512f351cc492
+Author: David Crome <d.crome@tarent.de>
+Date:   Sat Feb 7 07:28:54 2015 +0100
+
+    (MODULES-1761) Provide defined resource for managing recovery.conf
+    
+    Currently there is no resource to use for creating the recovery.conf
+    
+    This resource can create a recovery.conf for replication with all
+    currently supported parameters
+
+diff --git a/README.md b/README.md
+index c6437ec..ab41902 100644
+--- a/README.md
++++ b/README.md
+@@ -147,6 +147,7 @@ Resources:
+ * [postgresql::server::extension](#resource-postgresqlserverextension)
+ * [postgresql::server::pg_hba_rule](#resource-postgresqlserverpg_hba_rule)
+ * [postgresql::server::pg_ident_rule](#resource-postgresqlserverpg_ident_rule)
++* [postgresql::server::recovery](#resource-postgresqlserverrecovery)
+ * [postgresql::server::role](#resource-postgresqlserverrole)
+ * [postgresql::server::schema](#resource-postgresqlserverschema)
+ * [postgresql::server::table_grant](#resource-postgresqlservertable_grant)
+@@ -240,6 +241,9 @@ Path to your `pg\_ident.conf` file.
+ ####`postgresql_conf_path`
+ Path to your `postgresql.conf` file.
+ 
++####`recovery_conf_path`
++Path to your `recovery.conf` file.
++
+ ####`pg_hba_conf_defaults`
+ If false, disables the defaults supplied with the module for `pg\_hba.conf`. This is useful if you disagree with the defaults and wish to override them yourself. Be sure that your changes of course align with the rest of the module, as some access is required to perform basic `psql` operations for example.
+ 
+@@ -359,6 +363,9 @@ Path to your `pg\_ident.conf` file.
+ ####`postgresql_conf_path`
+ Path to your `postgresql.conf` file.
+ 
++####`recovery_conf_path`
++Path to your `recovery.conf` file.
++
+ ####`pg_hba_conf_defaults`
+ If false, disables the defaults supplied with the module for `pg\_hba.conf`. This is useful if you di
+ sagree with the defaults and wish to override them yourself. Be sure that your changes of course alig
+@@ -390,6 +397,9 @@ This value defaults to `true`. Whether or not manage the pg_hba.conf. If set to
+ ####`manage_pg_ident_conf`
+ This value defaults to `true`. Whether or not manage the pg_ident.conf. If set to `true`, puppet will overwrite this file. If set to `false`, puppet will not modify the file.
+ 
++####`manage_recovery_conf`
++This value defaults to `false`. Whether or not manage the recovery.conf. If set to `true`, puppet will overwrite this file. If set to `false`, puppet will not create the file.
++
+ ###Class: postgresql::client
+ 
+ This class installs postgresql client software. Alter the following parameters if you have a custom version you would like to install (Note: don't forget to make sure to add any necessary yum or apt repositories if specifying a custom version):
+@@ -690,6 +700,65 @@ An order for placing the mapping in pg_ident.conf. Defaults to 150.
+ ####`target`
+ This provides the target for the rule, and is generally an internal only property. Use with caution.
+ 
++###Resource: postgresql::server::recovery
++This defined type allows you to create the content for `recovery.conf`. For more details see the [PostgreSQL documentation](http://www.postgresql.org/docs/9.4/static/recovery-config.html).
++
++For example:
++
++    postgresql::server::recovery( 'Create a recovery.conf file with the following defined parameters':
++      restore_command                => 'cp /mnt/server/archivedir/%f %p',
++      archive_cleanup_command        => undef,
++      recovery_end_command           => undef,
++      recovery_target_name           => 'daily backup 2015-01-26',
++      recovery_target_time           => '2015-02-08 22:39:00 EST',
++      recovery_target_xid            => undef,
++      recovery_target_inclusive      => true,
++      recovery_target                => 'immediate',
++      recovery_target_timeline       => 'latest',
++      pause_at_recovery_target       => true,
++      standby_mode                   => 'on',
++      primary_conninfo               => 'host=localhost port=5432',
++      primary_slot_name              => undef,
++      trigger_file                   => undef,
++      recovery_min_apply_delay       => 0,
++    }
++
++This would create a `recovery.conf` config file, similar to this:
++
++    restore_command = 'cp /mnt/server/archivedir/%f %p'
++    recovery_target_name = 'daily backup 2015-01-26'
++    recovery_target_time = '2015-02-08 22:39:00 EST'
++    recovery_target_inclusive = true
++    recovery_target = 'immediate'
++    recovery_target_timeline = 'latest'
++    pause_at_recovery_target = true
++    standby_mode = on
++    primary_conninfo = 'host=localhost port=5432'
++    recovery_min_apply_delay = 0
++
++
++Only the specified parameters will be recognize in the template! The `recovery.conf` will be only create if at least one parameter set and [manage_recovery_conf](#manage_recovery_conf) set to true.
++
++Every param value is a String set in the template with inverted comma except `recovery_target_inclusive`, `pause_at_recovery_target`, `standby_mode` and `recovery_min_apply_delay`.
++`standby_mode` is special, String ('on'/'off') and Boolean (true/false) is allowed, but the postgres documentation says it's a Boolean.
++
++A detailed description of all above listed parameters can be found in the [PostgreSQL documentation](http://www.postgresql.org/docs/9.4/static/recovery-config.html).
++
++The parameters are grouped into these three sections:
++
++
++#### [`Archive Recovery Parameters`](http://www.postgresql.org/docs/9.4/static/archive-recovery-settings.html)
++In this section the `restore_command`, `archive_cleanup_command` and `recovery_end_command` parameters are listed.
++
++#### [`Recovery Target Settings`](http://www.postgresql.org/docs/9.4/static/recovery-target-settings.html)
++In this section the `recovery_target_name`, `recovery_target_time`, `recovery_target_xid`, `recovery_target_inclusive`, `recovery_target`, `recovery_target_timeline` and `pause_at_recovery_target` parameters are listed.
++
++#### [`Standby Server Settings`](http://www.postgresql.org/docs/9.4/static/standby-settings.html)
++In this section the `standby_mode`, `primary_conninfo`, `primary_slot_name`, `trigger_file` and `recovery_min_apply_delay` parameters are listed.
++
++####`target`
++This provides the target for the rule, and is generally an internal only property. Use with caution.
++
+ 
+ ###Resource: postgresql::server::role
+ This resource creates a role or user in PostgreSQL.
+diff --git a/manifests/globals.pp b/manifests/globals.pp
+index e1a9d5b..11caa66 100644
+--- a/manifests/globals.pp
++++ b/manifests/globals.pp
+@@ -22,6 +22,7 @@ class postgresql::globals (
+   $pg_hba_conf_path     = undef,
+   $pg_ident_conf_path   = undef,
+   $postgresql_conf_path = undef,
++  $recovery_conf_path   = undef,
+ 
+   $pg_hba_conf_defaults = undef,
+ 
+@@ -44,6 +45,7 @@ class postgresql::globals (
+ 
+   $manage_pg_hba_conf   = undef,
+   $manage_pg_ident_conf = undef,
++  $manage_recovery_conf = undef,
+ 
+   $manage_package_repo  = undef
+ ) {
+diff --git a/manifests/params.pp b/manifests/params.pp
+index 285adf0..2dab71f 100644
+--- a/manifests/params.pp
++++ b/manifests/params.pp
+@@ -16,6 +16,7 @@ class postgresql::params inherits postgresql::globals {
+   $service_provider           = $service_provider
+   $manage_pg_hba_conf         = pick($manage_pg_hba_conf, true)
+   $manage_pg_ident_conf       = pick($manage_pg_ident_conf, true)
++  $manage_recovery_conf       = pick($manage_recovery_conf, false)
+   $package_ensure             = 'present'
+ 
+   # Amazon Linux's OS Family is 'Linux', operating system 'Amazon'.
+@@ -250,5 +251,6 @@ class postgresql::params inherits postgresql::globals {
+   $pg_hba_conf_defaults = pick($pg_hba_conf_defaults, true)
+   $pg_ident_conf_path   = pick($pg_ident_conf_path, "${confdir}/pg_ident.conf")
+   $postgresql_conf_path = pick($postgresql_conf_path, "${confdir}/postgresql.conf")
++  $recovery_conf_path   = pick($recovery_conf_path, "${datadir}/recovery.conf")
+   $default_database     = pick($default_database, 'postgres')
+ }
+diff --git a/manifests/server.pp b/manifests/server.pp
+index f05732f..04585c0 100644
+--- a/manifests/server.pp
++++ b/manifests/server.pp
+@@ -30,6 +30,7 @@ class postgresql::server (
+   $pg_hba_conf_path           = $postgresql::params::pg_hba_conf_path,
+   $pg_ident_conf_path         = $postgresql::params::pg_ident_conf_path,
+   $postgresql_conf_path       = $postgresql::params::postgresql_conf_path,
++  $recovery_conf_path         = $postgresql::params::recovery_conf_path,
+ 
+   $datadir                    = $postgresql::params::datadir,
+   $xlogdir                    = $postgresql::params::xlogdir,
+@@ -47,6 +48,7 @@ class postgresql::server (
+ 
+   $manage_pg_hba_conf         = $postgresql::params::manage_pg_hba_conf,
+   $manage_pg_ident_conf       = $postgresql::params::manage_pg_ident_conf,
++  $manage_recovery_conf       = $postgresql::params::manage_recovery_conf,
+ 
+   #Deprecated
+   $version                    = undef,
+diff --git a/manifests/server/config.pp b/manifests/server/config.pp
+index 0eb0a65..e5a9def 100644
+--- a/manifests/server/config.pp
++++ b/manifests/server/config.pp
+@@ -9,12 +9,14 @@ class postgresql::server::config {
+   $pg_hba_conf_path           = $postgresql::server::pg_hba_conf_path
+   $pg_ident_conf_path         = $postgresql::server::pg_ident_conf_path
+   $postgresql_conf_path       = $postgresql::server::postgresql_conf_path
++  $recovery_conf_path         = $postgresql::server::recovery_conf_path
+   $pg_hba_conf_defaults       = $postgresql::server::pg_hba_conf_defaults
+   $user                       = $postgresql::server::user
+   $group                      = $postgresql::server::group
+   $version                    = $postgresql::server::_version
+   $manage_pg_hba_conf         = $postgresql::server::manage_pg_hba_conf
+   $manage_pg_ident_conf       = $postgresql::server::manage_pg_ident_conf
++  $manage_recovery_conf       = $postgresql::server::manage_recovery_conf
+   $datadir                    = $postgresql::server::datadir
+   $logdir                     = $postgresql::server::logdir
+ 
+@@ -144,6 +146,17 @@ class postgresql::server::config {
+     }
+   }
+ 
++  if ($manage_recovery_conf == true) {
++    concat { $recovery_conf_path:
++      owner  => $user,
++      group  => $group,
++      force  => true, # do not crash if there is no recovery conf file
++      mode   => '0640',
++      warn   => true,
++      notify => Class['postgresql::server::reload'],
++    }
++  }
++
+   if $::osfamily == 'RedHat' {
+     if $::operatingsystemrelease =~ /^7/ or $::operatingsystem == 'Fedora' {
+       file { 'systemd-override':
+diff --git a/manifests/server/recovery.pp b/manifests/server/recovery.pp
+new file mode 100644
+index 0000000..924866e
+--- /dev/null
++++ b/manifests/server/recovery.pp
+@@ -0,0 +1,38 @@
++# This resource manages the parameters that applies to the recovery.conf template. See README.md for more details.
++define postgresql::server::recovery(
++  $restore_command                = undef,
++  $archive_cleanup_command        = undef,
++  $recovery_end_command           = undef,
++  $recovery_target_name           = undef,
++  $recovery_target_time           = undef,
++  $recovery_target_xid            = undef,
++  $recovery_target_inclusive      = undef,
++  $recovery_target                = undef,
++  $recovery_target_timeline       = undef,
++  $pause_at_recovery_target       = undef,
++  $standby_mode                   = undef,
++  $primary_conninfo               = undef,
++  $primary_slot_name              = undef,
++  $trigger_file                   = undef,
++  $recovery_min_apply_delay       = undef,
++  $target                         = $postgresql::server::recovery_conf_path
++) {
++
++  if $postgresql::server::manage_recovery_conf == false {
++    fail('postgresql::server::manage_recovery_conf has been disabled, so this resource is now unused and redundant, either enable that option or remove this resource from your manifests')
++  } else {
++    if($restore_command == undef and $archive_cleanup_command == undef and $recovery_end_command == undef
++      and $recovery_target_name == undef and $recovery_target_time == undef and $recovery_target_xid == undef
++      and $recovery_target_inclusive == undef and $recovery_target == undef and $recovery_target_timeline == undef
++      and $pause_at_recovery_target == undef and $standby_mode == undef and $primary_conninfo == undef
++      and $primary_slot_name == undef and $trigger_file == undef and $recovery_min_apply_delay == undef) {
++      fail('postgresql::server::recovery use this resource but do not pass a parameter will avoid creating the recovery.conf, because it makes no sense.')
++    }
++
++    # Create the recovery.conf content
++    concat::fragment { 'recovery.conf':
++      target  => $target,
++      content => template('postgresql/recovery.conf'),
++    }
++  }
++}
+diff --git a/spec/unit/defines/server/recovery_spec.rb b/spec/unit/defines/server/recovery_spec.rb
+new file mode 100644
+index 0000000..8c78e3e
+--- /dev/null
++++ b/spec/unit/defines/server/recovery_spec.rb
+@@ -0,0 +1,113 @@
++require 'spec_helper'
++
++describe 'postgresql::server::recovery', :type => :define do
++  let :facts do
++    {
++      :osfamily => 'Debian',
++      :operatingsystem => 'Debian',
++      :operatingsystemrelease => '6.0',
++      :kernel => 'Linux',
++      :concat_basedir => tmpfilename('recovery'),
++      :id => 'root',
++      :path => '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
++    }
++  end
++  let :title do
++    'test'
++  end
++  let :target do
++    tmpfilename('recovery')
++  end
++
++  context 'managing recovery' do
++    let :pre_condition do
++      <<-EOS
++        class { 'postgresql::globals':
++          manage_recovery_conf => true,
++        }
++        class { 'postgresql::server': }
++      EOS
++    end
++
++    let :params do
++      {
++        :restore_command            => 'restore_command',
++        :recovery_target_timeline   => 'recovery_target_timeline',
++      }
++    end
++    it do
++      is_expected.to contain_concat__fragment('recovery.conf').with({
++        :content => /restore_command = 'restore_command'[\n]+recovery_target_timeline = 'recovery_target_timeline'/
++      })
++    end
++  end
++  context 'not managing recovery' do
++    let :pre_condition do
++      <<-EOS
++        class { 'postgresql::globals':
++          manage_recovery_conf => false,
++        }
++        class { 'postgresql::server': }
++      EOS
++    end
++    let :params do
++      {
++          :restore_command => '',
++      }
++    end
++    it 'should fail because $manage_recovery_conf is false' do
++      expect { catalogue }.to raise_error(Puppet::Error,
++                                      /postgresql::server::manage_recovery_conf has been disabled/)
++    end
++  end
++  context 'not managing recovery, missing param' do
++    let :pre_condition do
++      <<-EOS
++        class { 'postgresql::globals':
++          manage_recovery_conf => true,
++        }
++        class { 'postgresql::server': }
++      EOS
++    end
++    it 'should fail because no param set' do
++      expect { catalogue }.to raise_error(Puppet::Error,
++                                      /postgresql::server::recovery use this resource but do not pass a parameter will avoid creating the recovery.conf, because it makes no sense./)
++    end
++  end
++
++  context 'managing recovery with all params' do
++    let :pre_condition do
++      <<-EOS
++        class { 'postgresql::globals':
++          manage_recovery_conf => true,
++        }
++        class { 'postgresql::server': }
++      EOS
++    end
++
++    let :params do
++      {
++          :restore_command            => 'restore_command',
++          :archive_cleanup_command    => 'archive_cleanup_command',
++          :recovery_end_command       => 'recovery_end_command',
++          :recovery_target_name       => 'recovery_target_name',
++          :recovery_target_time       => 'recovery_target_time',
++          :recovery_target_xid        => 'recovery_target_xid',
++          :recovery_target_inclusive  => true,
++          :recovery_target            => 'recovery_target',
++          :recovery_target_timeline   => 'recovery_target_timeline',
++          :pause_at_recovery_target   => true,
++          :standby_mode               => 'on',
++          :primary_conninfo           => 'primary_conninfo',
++          :primary_slot_name          => 'primary_slot_name',
++          :trigger_file               => 'trigger_file',
++          :recovery_min_apply_delay   => 0,
++      }
++    end
++    it do
++      is_expected.to contain_concat__fragment('recovery.conf').with({
++          :content => /restore_command = 'restore_command'[\n]+archive_cleanup_command = 'archive_cleanup_command'[\n]+recovery_end_command = 'recovery_end_command'[\n]+recovery_target_name = 'recovery_target_name'[\n]+recovery_target_time = 'recovery_target_time'[\n]+recovery_target_xid = 'recovery_target_xid'[\n]+recovery_target_inclusive = true[\n]+recovery_target = 'recovery_target'[\n]+recovery_target_timeline = 'recovery_target_timeline'[\n]+pause_at_recovery_target = true[\n]+standby_mode = on[\n]+primary_conninfo = 'primary_conninfo'[\n]+primary_slot_name = 'primary_slot_name'[\n]+trigger_file = 'trigger_file'[\n]+recovery_min_apply_delay = 0[\n]+/
++      })
++    end
++  end
++end
+diff --git a/templates/recovery.conf b/templates/recovery.conf
+new file mode 100644
+index 0000000..6fb4789
+--- /dev/null
++++ b/templates/recovery.conf
+@@ -0,0 +1,47 @@
++<% if @restore_command %>
++restore_command = '<%= @restore_command %>'
++<% end %>
++<% if @archive_cleanup_command %>
++archive_cleanup_command = '<%= @archive_cleanup_command %>'
++<% end %>
++<% if @recovery_end_command %>
++recovery_end_command = '<%= @recovery_end_command %>'
++<% end %>
++
++<% if @recovery_target_name %>
++recovery_target_name = '<%= @recovery_target_name %>'
++<% end %>
++<% if @recovery_target_time %>
++recovery_target_time = '<%= @recovery_target_time %>'
++<% end %>
++<% if @recovery_target_xid %>
++recovery_target_xid = '<%= @recovery_target_xid %>'
++<% end %>
++<% if @recovery_target_inclusive %>
++recovery_target_inclusive = <%= @recovery_target_inclusive %>
++<% end %>
++<% if @recovery_target %>
++recovery_target = '<%= @recovery_target %>'
++<% end %>
++<% if @recovery_target_timeline %>
++recovery_target_timeline = '<%= @recovery_target_timeline %>'
++<% end %>
++<% if @pause_at_recovery_target %>
++pause_at_recovery_target = <%= @pause_at_recovery_target %>
++<% end %>
++
++<% if @standby_mode %>
++standby_mode = <%= @standby_mode %>
++<% end %>
++<% if @primary_conninfo %>
++primary_conninfo = '<%= @primary_conninfo  %>'
++<% end %>
++<% if @primary_slot_name %>
++primary_slot_name = '<%= @primary_slot_name %>'
++<% end %>
++<% if @trigger_file %>
++trigger_file = '<%= @trigger_file %>'
++<% end %>
++<% if @recovery_min_apply_delay %>
++recovery_min_apply_delay = <%= @recovery_min_apply_delay %>
++<% end %>
