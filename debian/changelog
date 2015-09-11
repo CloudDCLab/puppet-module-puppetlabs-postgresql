@@ -1,3 +1,9 @@
+puppet-module-puppetlabs-postgresql (4.6.0-1) UNRELEASED; urgency=medium
+
+  * Imported upstream release 4.6.0-1
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 12 Sep 2015 01:13:35 +0200
+
 puppet-module-puppetlabs-postgresql (4.0.0-2) unstable; urgency=medium
 
   * [221918d] Import upstream commit 9bb1c5e to select correct postgresql
