@@ -1,8 +1,11 @@
-puppet-module-puppetlabs-postgresql (4.6.0-1) UNRELEASED; urgency=medium
+puppet-module-puppetlabs-postgresql (4.6.0-1) unstable; urgency=medium
 
+  * Team upload.
   * Imported upstream release 4.6.0-1
+  * [9529e9b] Drop backporeted upstream changes
+  * [8a79ed5] Add DEP-8 test suite
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 12 Sep 2015 01:13:35 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 02 Oct 2015 22:08:49 +0200
 
 puppet-module-puppetlabs-postgresql (4.0.0-2) unstable; urgency=medium
 
