@@ -1,8 +1,10 @@
-puppet-module-puppetlabs-postgresql (4.6.1-1) UNRELEASED; urgency=medium
+puppet-module-puppetlabs-postgresql (4.6.1-1) unstable; urgency=medium
 
+  * Team upload.
   * Imported upstream release 4.6.1
+  * [edfce6a] Add lintian override for module content
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Mon, 21 Dec 2015 08:55:06 +0100
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Mon, 21 Dec 2015 09:05:00 +0100
 
 puppet-module-puppetlabs-postgresql (4.6.0-1) unstable; urgency=medium
 
